@@ -50,4 +50,46 @@ class MovieSuccess extends MovieState{
 
 }
 
+// BLOC
+
+class MovieBloc extends Bloc<MovieEvent, MovieState> {
+  final TMDBRepository tmdbRepository;
+  int page = 1;
+
+  MovieBloc({this.tmdbRepository});
+
+  @override
+  MovieState get initialState => MovieInitial();
+
+  Stream<MovieState> mapEventToState(MovieEvent event) async* {
+    final currentState = state;
+
+    if (event is FetchMovies && !_hasReachedMax(currentState)) {
+      try {
+        if (currentState is MovieInitial) {
+          final movies = await tmdbRepository.fetchMovies(page: page);
+          yield MovieSuccess(movies: movies, hasReachedMax: false);
+          return;
+        }
+
+        if (currentState is MovieSuccess) {
+          final movies = await tmdbRepository.fetchMovies(page: ++page);
+          yield movies.isEmpty
+              ? currentState.copyWith(hasReachedMax: true)
+              : MovieSuccess(
+                  hasReachedMax: false,
+                  movies: currentState.movies + movies,
+                );
+        }
+      } catch (_) {
+        yield MovieFailed();
+      }
+    }
+  }
+
+  bool _hasReachedMax(MovieState state) =>
+      state is MovieSuccess && state.hasReachedMax;
+      
+}
+
 
