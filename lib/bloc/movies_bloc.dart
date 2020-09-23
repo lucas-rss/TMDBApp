@@ -29,4 +29,25 @@ class MovieSuccess extends MovieState{
     this.movies,
     this.hasReachedMax  
   });
+  
+  MovieSuccess copyWith({
+    List<Movie> movies,
+    bool hasReachedMax
+  }) {
+    
+    return MovieSuccess(
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      movies: movies ?? this.movies
+    );
+  }
+
+  @override
+  List<Object> get props => [movies, hasReachedMax];
+
+  @override
+  String toString() => "{ MovieSuccess: {movies: ${movies.length}, hasReachedMax: $hasReachedMax } }";
+  
+
 }
+
+
