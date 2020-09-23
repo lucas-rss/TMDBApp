@@ -1,4 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:hello_world/models/Movie.dart';
+import 'package:bloc/bloc.dart';
+import 'package:hello_world/repository/tmdb_repository.dart';
 
 //EVENTO
 
