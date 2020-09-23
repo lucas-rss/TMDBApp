@@ -8,6 +8,11 @@ class HomePage extends StatefulWidget{
 }
 
 class _HomePageState extends State<HomePage>{
+  PageController bottomController = PageController(
+    initialPage: 0,
+    viewportFraction: .2,
+  );
+  
   @override
   Widget build(BuildContext context){
     return Scaffold(
