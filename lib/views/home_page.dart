@@ -1,5 +1,7 @@
-
 import 'package:flutter/material.dart';
+import 'package:hello_world/models/Movie.dart';
+import 'package:hello_world/bloc/movies_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget{
   @override
@@ -13,10 +15,33 @@ class _HomePageState extends State<HomePage>{
     viewportFraction: .2,
   );
   
- @override
+  PageController pageController = PageController(
+    initialPage: 0,
+  );
+  int index = 0;
+  final scrollThreshold = 200;
+  MovieBloc movieBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    bottomController.addListener(_onScroll);
+    movieBloc = BlocProvider.of<MovieBloc>(context);
+  }
+
+  void _onScroll() {
+    final maxScroll = bottomController.position.maxScrollExtent;
+    final currentScroll = bottomController.position.pixels;
+
+    if (maxScroll - currentScroll <= scrollThreshold) {
+      movieBloc.add(FetchMovies());
+    }
+  }
+  
+  @override
   Widget build(BuildContext context){
     return Scaffold(
-      backgroundColor: Color(#4d4d4d),
+      backgroundColor: Color(909497),
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -37,7 +62,7 @@ class _HomePageState extends State<HomePage>{
             if (state is MovieSuccess) {
               if (state.movies.isEmpty) {
                 return Center(
-                  child: Text('Sem Filmes'),
+                  child: Text('Sem filmes'),
                 );
               }
 
@@ -49,3 +74,141 @@ class _HomePageState extends State<HomePage>{
       ),
     );
   }
+  
+  Widget _buildMovies(MovieSuccess state) {
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: Container(
+            child: PageView.builder(
+              scrollDirection: Axis.horizontal,
+              controller: pageController,
+              itemCount: state.hasReachedMax
+                  ? state.movies.length
+                  : state.movies.length + 1,
+              itemBuilder: (context, i) {
+                if (i >= state.movies.length) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                return Container(
+                  height: double.infinity,
+                  width: double.infinity,
+                  child: Stack(
+                    children: <Widget>[
+                      ShaderMask(
+                        shaderCallback: (rect) {
+                          return LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black,
+                              Colors.transparent,
+                            ],
+                          ).createShader(
+                            Rect.fromLTRB(
+                              0,
+                              0,
+                              rect.width,
+                              rect.height,
+                            ),
+                          );
+                        },
+                        blendMode: BlendMode.dstIn,
+                        child: Image(
+                          height: double.infinity,
+                          width: double.infinity,
+                          image: NetworkImage(
+                              'https://image.tmdb.org/t/p/w500${state.movies[i].poster_path}'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 20,
+                        left: 10,
+                        right: 10,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * .8,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                state.movies[i].title,
+                                style: TextStyle(
+                                  color: Colors.orangeAccent[100],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 25,
+                                ),
+                              ),
+                              Text(
+                                state.movies[i].overview,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        Container(
+          height: 100,
+          width: double.infinity,
+          margin: EdgeInsets.only(top: 5),
+          child: PageView.builder(
+            onPageChanged: (i) {
+              pageController.animateToPage(i,
+                  duration: Duration(milliseconds: 500), curve: Curves.ease);
+              setState(() {
+                index = i;
+              });
+            },
+            scrollDirection: Axis.horizontal,
+            controller: bottomController,
+            itemCount: state.hasReachedMax
+                ? state.movies.length
+                : state.movies.length + 1,
+            itemBuilder: (context, i) {
+              if (i >= state.movies.length) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              Movie movie = state.movies[i];
+              return Container(
+                height: double.infinity,
+                width: 70,
+                margin: EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      'https://image.tmdb.org/t/p/w500${movie.poster_path}',
+                    ),
+                    fit: BoxFit.cover,
+                    colorFilter: index == i
+                        ? null
+                        : ColorFilter.mode(
+                            Colors.black54,
+                            BlendMode.darken,
+                          ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  
+}
+  
