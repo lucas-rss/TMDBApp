@@ -1,1 +1,1 @@
-final String API_KEY = "MINHA_KEY";
+final String API_KEY = "f3297bd6277357cb1965bc51f11814f6";
