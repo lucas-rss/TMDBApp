@@ -27,5 +27,17 @@ class TMDBApiClient {
     return movies;
 
   }
+  
+  Future<MovieDetails> fetchMovieDetails({int id}) async {
+    final url = "$baseURL/movie/popular?$id?api_key=$API_KEY&language=pt-BR";
+    final response = await httpClient.get(url);
+
+    if(response.statusCode != 200){
+      throw new Exception("Houve um problema!");
+    }
+
+    final decodeJson = jsonDecode(response.body);
+    return MovieDetails.fromJson(decodeJson);
+  }
 
 }
