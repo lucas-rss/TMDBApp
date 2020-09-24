@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:hello_world/models/Movie.dart';
-import 'package:hello_world/bloc/movies_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hello_world/bloc/movies_bloc.dart';
+import 'package:hello_world/models/Movie.dart';
+import 'package:hello_world/views/movies/movie_details_page.dart';
 
-class HomePage extends StatefulWidget{
+class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
-
 }
 
-class _HomePageState extends State<HomePage>{
+class _HomePageState extends State<HomePage> {
   PageController bottomController = PageController(
     initialPage: 0,
     viewportFraction: .2,
   );
-  
   PageController pageController = PageController(
     initialPage: 0,
   );
@@ -37,11 +36,11 @@ class _HomePageState extends State<HomePage>{
       movieBloc.add(FetchMovies());
     }
   }
-  
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(909497),
+      backgroundColor: Color(0xff0e0e0e),
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -55,7 +54,7 @@ class _HomePageState extends State<HomePage>{
 
             if (state is MovieFailed) {
               return Center(
-                child: Text('Houve um problema...'),
+                child: Text('Houve algum problema...'),
               );
             }
 
@@ -74,7 +73,7 @@ class _HomePageState extends State<HomePage>{
       ),
     );
   }
-  
+
   Widget _buildMovies(MovieSuccess state) {
     return Column(
       children: <Widget>[
@@ -92,74 +91,84 @@ class _HomePageState extends State<HomePage>{
                     child: CircularProgressIndicator(),
                   );
                 }
-                return Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  child: Stack(
-                    children: <Widget>[
-                      ShaderMask(
-                        shaderCallback: (rect) {
-                          return LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black,
-                              Colors.transparent,
-                            ],
-                          ).createShader(
-                            Rect.fromLTRB(
-                              0,
-                              0,
-                              rect.width,
-                              rect.height,
-                            ),
-                          );
-                        },
-                        blendMode: BlendMode.dstIn,
-                        child: Image(
-                          height: double.infinity,
-                          width: double.infinity,
-                          image: NetworkImage(
-                              'https://image.tmdb.org/t/p/w500${state.movies[i].poster_path}'),
-                          fit: BoxFit.cover,
-                        ),
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MovieDetailsPage(
+                        id: state.movies[i].id,
                       ),
-                      Positioned(
-                        bottom: 20,
-                        left: 10,
-                        right: 10,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * .8,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                state.movies[i].title,
-                                style: TextStyle(
-                                  color: Colors.orangeAccent[100],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 25,
-                                ),
+                    ),
+                  ),
+                  child: Container(
+                    height: double.infinity,
+                    width: double.infinity,
+                    child: Stack(
+                      children: <Widget>[
+                        ShaderMask(
+                          shaderCallback: (rect) {
+                            return LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black,
+                                Colors.transparent,
+                              ],
+                            ).createShader(
+                              Rect.fromLTRB(
+                                0,
+                                0,
+                                rect.width,
+                                rect.height,
                               ),
-                              Text(
-                                state.movies[i].overview,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
+                            );
+                          },
+                          blendMode: BlendMode.dstIn,
+                          child: Image(
+                            height: double.infinity,
+                            width: double.infinity,
+                            image: NetworkImage(
+                                'https://image.tmdb.org/t/p/w500${state.movies[i].poster_path}'),
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      )
-                    ],
+                        Positioned(
+                          bottom: 20,
+                          left: 10,
+                          right: 10,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * .8,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  state.movies[i].title,
+                                  style: TextStyle(
+                                    color: Colors.orangeAccent[100],
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 25,
+                                  ),
+                                ),
+                                Text(
+                                  state.movies[i].overview,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 );
               },
             ),
           ),
         ),
-        Container(
+        /*Container(
           height: 100,
           width: double.infinity,
           margin: EdgeInsets.only(top: 5),
@@ -204,11 +213,8 @@ class _HomePageState extends State<HomePage>{
               );
             },
           ),
-        ),
+        ),*/
       ],
     );
   }
-
-  
 }
-  

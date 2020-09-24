@@ -1,46 +1,44 @@
+// EVENT
+
+import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hello_world/models/Movie.dart';
-import 'package:bloc/bloc.dart';
 import 'package:hello_world/repository/tmdb_repository.dart';
-
-//EVENTO
 
 abstract class MovieEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
 
-class FetchMovies extends MovieEvent{}
+class FetchMovies extends MovieEvent {}
 
-//ESTADOS
+// STATES
 
-abstract class MovieState extends Equatable{
+abstract class MovieState extends Equatable {
   const MovieState();
-
   @override
   List<Object> get props => [];
 }
 
-class MovieInitial extends MovieState{}
-class MovieFailed extends MovieState{}
-class MovieSuccess extends MovieState{
+class MovieInitial extends MovieState {}
+
+class MovieFailed extends MovieState {}
+
+class MovieSuccess extends MovieState {
   final List<Movie> movies;
   final bool hasReachedMax;
-
   MovieSuccess({
-
     this.movies,
-    this.hasReachedMax  
+    this.hasReachedMax,
   });
 
   MovieSuccess copyWith({
     List<Movie> movies,
-    bool hasReachedMax
+    bool hasReachedMax,
   }) {
-    
     return MovieSuccess(
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-      movies: movies ?? this.movies
+      movies: movies ?? this.movies,
     );
   }
 
@@ -48,8 +46,8 @@ class MovieSuccess extends MovieState{
   List<Object> get props => [movies, hasReachedMax];
 
   @override
-  String toString() => "{ MovieSuccess: {movies: ${movies.length}, hasReachedMax: $hasReachedMax } }";
-
+  String toString() =>
+      "{ MovieSuccess: { movies: ${movies.length}, hasReachedMax: $hasReachedMax } }";
 }
 
 // BLOC
@@ -63,9 +61,9 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
   @override
   MovieState get initialState => MovieInitial();
 
+  @override
   Stream<MovieState> mapEventToState(MovieEvent event) async* {
     final currentState = state;
-
     if (event is FetchMovies && !_hasReachedMax(currentState)) {
       try {
         if (currentState is MovieInitial) {
@@ -83,7 +81,8 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
                   movies: currentState.movies + movies,
                 );
         }
-      } catch (_) {
+      } catch (e) {
+        print(e);
         yield MovieFailed();
       }
     }
@@ -91,6 +90,4 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
 
   bool _hasReachedMax(MovieState state) =>
       state is MovieSuccess && state.hasReachedMax;
-      
 }
-
