@@ -8,5 +8,9 @@ class TMDBRepository{
   Future<List<Movie>> fetchMovies({int page}) async {
     return await tmdbApiClient.fetchMovies(page: page);
   }
+  
+  Future<MovieDetails> fetchMovieDetails({int id}) async {
+    return await tmdbApiClient.fetchMovieDetails(id: id);
+  }
 
 }
