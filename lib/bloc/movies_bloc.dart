@@ -32,7 +32,7 @@ class MovieSuccess extends MovieState{
     this.movies,
     this.hasReachedMax  
   });
-  
+
   MovieSuccess copyWith({
     List<Movie> movies,
     bool hasReachedMax
@@ -49,7 +49,6 @@ class MovieSuccess extends MovieState{
 
   @override
   String toString() => "{ MovieSuccess: {movies: ${movies.length}, hasReachedMax: $hasReachedMax } }";
-  
 
 }
 
@@ -94,5 +93,4 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
       state is MovieSuccess && state.hasReachedMax;
       
 }
-
 
